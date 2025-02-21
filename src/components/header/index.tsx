@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "../link";
-import { Routes } from "@/constants/enums";
 import Navbar from "./Navbar";
 import CartButton from "./cart-button";
 import { getCurrentLocale } from "@/lib/getCurrentLocale";
