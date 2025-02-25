@@ -3,15 +3,22 @@ import Footer from "@/components/footer";
 import ReduxProvider from "@/providers/ReduxProvider";
 import { Directions, Languages } from "@/constants/enums";
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Cairo, Roboto } from "next/font/google";
 import { Locale } from "@/i18n.config";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
+import NextAuthSessionProvider from "@/providers/NextAuthSessionProvider";
 
 export async function generateStaticParams() {
   return [{ locale: Languages.ARABIC }, { locale: Languages.ENGLISH }];
 }
 
 const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  preload: true,
+});
+const cairo = Cairo({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   preload: true,
@@ -35,13 +42,29 @@ export default async function RootLayout({
       lang={locale}
       dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
     >
-      <body className={roboto.className}>
-        {" "}
-        <ReduxProvider>
-          <Header />
-          {children}
-          <Footer />
-        </ReduxProvider>
+      <body
+        className={
+          locale === Languages.ARABIC ? cairo.className : roboto.className
+        }
+      >
+        <NextAuthSessionProvider>
+          <ReduxProvider>
+            <Header />
+            {children}
+            <Footer />
+            <Toaster
+              richColors
+              position="top-center"
+              toastOptions={{
+                style: {
+                  marginTop: "80px",
+                  backgroundColor: "white",
+                  border: "gray",
+                },
+              }}
+            />
+          </ReduxProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );

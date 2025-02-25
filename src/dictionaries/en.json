@@ -180,6 +180,10 @@
             "required": "Category Name is required"
           }
         }
+      },
+      "confirmDelete": "Confirm category deletion?",
+      "errors": {
+        "deleteFailed": "An error occurred while deleting the category. Please try again."
       }
     },
     "menu-items": {

@@ -79,3 +79,24 @@ body {
     @apply flex items-center justify-center;
   }
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* For Shadcn Dialog */
+
+html[lang="ar"] div[role="dialog"] button {
+  left: 24px !important;
+  right: auto !important;
+}
+
+html[lang="en"] div[role="dialog"] button {
+  left: auto !important;
+  right: 24px !important;
+}

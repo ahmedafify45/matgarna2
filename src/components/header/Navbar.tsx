@@ -1,35 +1,48 @@
 "use client";
-import { Pages, Routes } from "@/constants/enums";
+import { Routes } from "@/constants/enums";
 import React, { useState } from "react";
 import Link from "../link";
-import { Button, buttonVariants } from "../ui/button";
+import { Button } from "../ui/button";
 import { Menu, XIcon } from "lucide-react";
 import { useParams, usePathname } from "next/navigation";
+import AuthButtons from "./auth-buttons";
+import LanguageSwitcher from "./Language-switcher";
+import { Translations } from "@/types/translations";
+import { Session } from "next-auth";
+import { useClientSession } from "@/hooks/useClientSession";
+import { UserRole } from "@prisma/client";
 
-function Navbar({ translations }: { translations: { [key: string]: string } }) {
+function Navbar({
+  translations,
+  initialSession,
+}: {
+  translations: Translations;
+  initialSession: Session | null;
+}) {
+  const session = useClientSession(initialSession);
   const [openMenu, setOpenMenu] = useState(false);
   const { locale } = useParams();
   const pathname = usePathname();
   const links = [
     {
       id: crypto.randomUUID(),
-      title: translations.product,
+      title: translations.navbar.product,
       herf: Routes.PRODUCT,
     },
-    { id: crypto.randomUUID(), title: translations.about, herf: Routes.ABOUT },
     {
       id: crypto.randomUUID(),
-      title: translations.contact,
+      title: translations.navbar.about,
+      herf: Routes.ABOUT,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: translations.navbar.contact,
       herf: Routes.CONTACT,
     },
-    {
-      id: crypto.randomUUID(),
-      title: translations.login,
-      herf: `${Routes.AUTH}/${Pages.LOGIN}`,
-    },
   ];
+  const isAdmin = session.data?.user.role === UserRole.ADMIN;
   return (
-    <nav className="flex-1 justify-end flex">
+    <nav className="order-last lg:order-none">
       <Button
         variant="secondary"
         size="sm"
@@ -55,12 +68,10 @@ function Navbar({ translations }: { translations: { [key: string]: string } }) {
         {links.map((link) => (
           <li key={link.id}>
             <Link
+              onClick={() => setOpenMenu(false)}
               href={`/${locale}/${link.herf}`}
-              className={`${
-                link.herf === `${Routes.AUTH}/${Pages.LOGIN}`
-                  ? `${buttonVariants({ size: "lg" })} !px-8 !rounded-full`
-                  : "hover:text-primary duration-200 transition-colors"
-              } font-semibold ${
+              className={`
+              }hover:text-primary duration-200  font-semibold ${
                 pathname.startsWith(`/${locale}/${link.herf}`)
                   ? "text-primary"
                   : "text-accent"
@@ -70,6 +81,40 @@ function Navbar({ translations }: { translations: { [key: string]: string } }) {
             </Link>
           </li>
         ))}
+        {session.data?.user && (
+          <li>
+            <Link
+              href={
+                isAdmin
+                  ? `/${locale}/${Routes.ADMIN}`
+                  : `/${locale}/${Routes.PROFILE}`
+              }
+              onClick={() => setOpenMenu(false)}
+              className={`${
+                pathname.startsWith(
+                  isAdmin
+                    ? `/${locale}/${Routes.ADMIN}`
+                    : `/${locale}/${Routes.PROFILE}`
+                )
+                  ? "text-primary"
+                  : "text-accent"
+              } hover:text-primary duration-200 transition-colors font-semibold`}
+            >
+              {isAdmin
+                ? translations.navbar.admin
+                : translations.navbar.profile}
+            </Link>
+          </li>
+        )}
+        <li className="lg:hidden flex flex-col gap-4">
+          <div onClick={() => setOpenMenu(false)}>
+            <AuthButtons
+              translations={translations}
+              initialSession={initialSession}
+            />
+          </div>
+          <LanguageSwitcher />
+        </li>
       </ul>
     </nav>
   );
